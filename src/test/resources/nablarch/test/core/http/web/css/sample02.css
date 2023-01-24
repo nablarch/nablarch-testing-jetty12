@@ -1,0 +1,35 @@
+#test03 {
+    background-image: url("./img/test.jpg");
+    background-repeat: no-repeat;
+    border-top: solid 0.06em;
+    color: #333333;
+    height: 1.8em;
+    font-size: 4em;
+    font-weight: bold;
+    padding-left: 0.4em;
+    z-index: 1;
+}
+
+#test04 {
+    background-image: url("../../img/test.jpg");
+    background-repeat: no-repeat;
+    border-top: solid 0.06em;
+    color: #333333;
+    height: 1.8em;
+    font-size: 4em;
+    font-weight: bold;
+    padding-left: 0.4em;
+    z-index: 1;
+}
+
+#test05 {
+    background-image: url("img/test.jpg");
+    background-repeat: no-repeat;
+    border-top: solid 0.06em;
+    color: #333333;
+    height: 1.8em;
+    font-size: 4em;
+    font-weight: bold;
+    padding-left: 0.4em;
+    z-index: 1;
+}

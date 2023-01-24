@@ -1,0 +1,63 @@
+#test01 {
+    background-image: url("/img/sample01.jpg");
+    background-repeat: no-repeat;
+    border-top: solid 0.06em;
+    color: #333333;
+    height: 1.8em;
+    font-size: 4em;
+    font-weight: bold;
+    padding-left: 0.4em;
+    z-index: 1;
+}
+
+#test02 {
+    background-image: url("../img/sample02.jpg");
+    background-repeat: no-repeat;
+    background-color: #dcdcdc;
+    border-top: solid 0.1em;
+    position: relative;
+    bottom: 0em;
+    height: 3.8em;
+    line-height: 3.8em;
+    padding-left: 5em;
+    overflow: hidden;
+}
+
+#test10 {
+    background-image: url(  "/img/sample01.jpg"  );
+    background-repeat: no-repeat;
+    background-color: #dcdcdc;
+    border-top: solid 0.1em;
+    position: relative;
+    bottom: 0em;
+    height: 3.8em;
+    line-height: 3.8em;
+    padding-left: 5em;
+    overflow: hidden;
+}
+
+#test11 {
+    background-image: url( '/img/sample01.jpg' );
+    background-repeat: no-repeat;
+    background-color: #dcdcdc;
+    border-top: solid 0.1em;
+    position: relative;
+    bottom: 0em;
+    height: 3.8em;
+    line-height: 3.8em;
+    padding-left: 5em;
+    overflow: hidden;
+}
+
+#test12 {
+    background-image: url( /img/sample01.jpg );
+    background-repeat: no-repeat;
+    background-color: #dcdcdc;
+    border-top: solid 0.1em;
+    position: relative;
+    bottom: 0em;
+    height: 3.8em;
+    line-height: 3.8em;
+    padding-left: 5em;
+    overflow: hidden;
+}

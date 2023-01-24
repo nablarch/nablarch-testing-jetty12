@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ファイル入出力に関係する設定
+-->
+<component-configuration
+    xmlns="http://tis.co.jp/nablarch/component-configuration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration  ./../component-configuration.xsd">
+
+  <!-- 環境依存値となるファイルパスの読み込み -->
+  <config-file file="nablarch/test/core/messaging/web/filepath.config" />
+
+  <component name="filePathSetting"
+      class="nablarch.core.util.FilePathSetting">
+    <property name="basePathSettings">
+      <map>
+        <entry key="format" value="${file.path.format}" />
+        <entry key="sendSyncTestData" value="classpath:nablarch/test/core/messaging/data/" />
+      </map>
+    </property>
+    <property name="fileExtensions">
+      <map>
+        <entry key="format" value="fmt" />
+        <entry key="sendSyncTestData" value="xls" />
+      </map>
+    </property>
+  </component>
+</component-configuration>

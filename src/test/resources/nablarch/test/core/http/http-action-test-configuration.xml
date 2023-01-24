@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+HTTPリクエスト単体テストを実施するための環境設定
+-->
+<component-configuration
+    xmlns="http://tis.co.jp/nablarch/component-configuration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ../component-configuration.xsd">
+
+  <import file="unit-test.xml"/>
+  <component name="httpTestConfiguration"
+      class="nablarch.test.core.http.HttpTestConfiguration">
+    <property name="webBaseDir" value="src/test/web" />
+
+    <!-- セッションに格納する情報 -->
+    <property name="sessionInfo">
+      <map>
+        <entry key="commonHeaderLoginUserName" value="リクエスト単体テストユーザ" />
+        <entry key="commonHeaderLoginDate" value="20100914" />
+      </map>
+    </property>
+
+    <!-- Htmlチェックツールの設定ファイルパス -->
+    <property name="htmlCheckerConfig"
+        value="src/test/resources/html-check-config.csv" />
+
+    <!-- Htmlチェックツールを実行するか否かの設定 -->
+    <property name="checkHtml" value="false" />
+
+    <!-- ダンプディレクトリへコピーされるHTMLリソースの拡張子。 -->
+    <property name="htmlResourcesExtensionList">
+      <list>
+        <value>css</value>
+        <value>jpg</value>
+        <value>js</value>
+      </list>
+    </property>
+    <!-- ダンプディレクトリへコピーされるHTMLリソースのルートディレクトリ。 -->
+    <property name="htmlResourcesRoot" value="../htmlResources" />
+    <property name="backup" value="true" />
+    <property name="htmlResourcesCharset" value="UTF-8" />
+  </component>
+
+
+  <!-- パッケージマッピングの設定 -->
+  <component name="packageMapping"
+              class="nablarch.fw.web.handler.HttpRequestJavaPackageMapping">
+    <property name="baseUri" value="/action/"/>
+    <property name="basePackage" value="nablarch.test.core.http.actions"/>
+  </component>
+
+  <component name="webFrontController"
+              class="nablarch.fw.web.servlet.WebFrontController">
+
+    <property name="handlerQueue">
+      <list>
+        <component class="nablarch.fw.handler.GlobalErrorHandler"/>
+        <component class="nablarch.fw.web.handler.HttpResponseHandler"/>
+        <component class="nablarch.fw.web.handler.ForwardingHandler"/>
+        <component-ref name="packageMapping" />
+      </list>
+    </property>
+  </component>
+</component-configuration>

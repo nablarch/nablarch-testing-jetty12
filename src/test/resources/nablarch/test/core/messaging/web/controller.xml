@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration
+        xmlns="http://tis.co.jp/nablarch/component-configuration"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration  ./component-configuration.xsd">
+
+
+  <!-- Webフロントコントローラ -->
+  <component
+          name="webFrontController"
+          class="nablarch.fw.web.servlet.WebFrontController">
+    <!-- ハンドラーキュー構成定義 -->
+    <property name="handlerQueue">
+      <list>
+
+        <!-- 共通エラーハンドラー -->
+        <component class="nablarch.fw.handler.GlobalErrorHandler"/>
+
+        <!-- サーブレット入出力ハンドラー -->
+        <component class="nablarch.fw.web.handler.HttpResponseHandler">
+        </component>
+
+        <!-- スレッドコンテキストに保持される共通属性を管理するハンドラ -->
+        <component class="nablarch.common.handler.threadcontext.ThreadContextHandler">
+          <property name="attributes">
+            <list>
+
+              <!-- ユーザID -->
+              <component class="nablarch.common.handler.threadcontext.UserIdAttribute">
+                <property name="sessionKey" value="user.id"/>
+                <property name="anonymousId" value="9999999999"/>
+              </component>
+
+              <!-- リクエストID -->
+              <component class="nablarch.common.handler.threadcontext.RequestIdAttribute"/>
+
+              <!-- 実行時ID -->
+              <component class="nablarch.common.handler.threadcontext.ExecutionIdAttribute"/>
+            </list>
+          </property>
+        </component>
+
+        <!-- HTTPアクセスログを出力するハンドラ -->
+        <!--
+        <component class="nablarch.common.web.handler.HttpAccessLogHandler" />
+        -->
+        <component class="nablarch.fw.RequestHandlerEntry">
+          <property name="requestPattern" value="/action//"/>
+          <property name="handler">
+            <component class="nablarch.common.web.handler.HttpAccessLogHandler"/>
+          </property>
+        </component>
+
+        <!-- 内部フォーワーディングハンドラ -->
+        <component class="nablarch.fw.web.handler.ForwardingHandler"/>
+
+        <!-- HTTPエラーハンドラー -->
+        <component class="nablarch.fw.web.handler.HttpErrorHandler">
+          <property name="defaultPages">
+            <map name="defaultPages">
+              <entry key="500" value="classpath://nablarch/test/core/messaging/web/ERROR.jsp"/>
+              <entry key="404" value="/PAGE_NOT_FOUND_ERROR.jsp"/>
+              <entry key="4.." value="/USER_ERROR.jsp" />
+            </map>
+          </property>
+        </component>
+
+        <!-- 
+          各業務アクションハンドラに対して
+          パッケージベースのディスパッチ機能を提供するハンドラ
+        -->
+        <component class="nablarch.fw.RequestHandlerEntry">
+          <property name="requestPattern" value="/action//"/>
+          <property name="handler">
+            <component class="nablarch.fw.web.handler.HttpRequestJavaPackageMapping">
+              <property name="baseUri" value="/action/"/>
+              <property name="basePackage" value="nablarch.test.core.messaging.sample"/>
+            </component>
+          </property>
+        </component>
+
+        <!-- 静的リソースに対するマッピング -->
+        <!-- スタイルシート -->
+        <component class="nablarch.fw.RequestHandlerEntry">
+          <property name="requestPattern" value="//*.css"/>
+          <property name="handler">
+            <component class="nablarch.fw.web.handler.ResourceMapping">
+              <property name="baseUri" value="/"/>
+              <property name="basePath" value="servlet:///"/>
+            </component>
+          </property>
+        </component>
+
+        <!-- JavaScript -->
+        <component class="nablarch.fw.RequestHandlerEntry">
+          <property name="requestPattern" value="//*.js"/>
+          <property name="handler">
+            <component class="nablarch.fw.web.handler.ResourceMapping">
+              <property name="baseUri" value="/"/>
+              <property name="basePath" value="servlet:///"/>
+            </component>
+          </property>
+        </component>
+
+        <!-- 画像 -->
+        <component class="nablarch.fw.RequestHandlerEntry">
+          <property name="requestPattern" value="//*.jpg"/>
+          <property name="handler">
+            <component class="nablarch.fw.web.handler.ResourceMapping">
+              <property name="baseUri" value="/"/>
+              <property name="basePath" value="servlet:///"/>
+            </component>
+          </property>
+        </component>
+
+        <component class="nablarch.fw.RequestHandlerEntry">
+          <property name="requestPattern" value="//*.png"/>
+          <property name="handler">
+            <component class="nablarch.fw.web.handler.ResourceMapping">
+              <property name="baseUri" value="/"/>
+              <property name="basePath" value="servlet:///"/>
+            </component>
+          </property>
+        </component>
+      </list>
+    </property>
+  </component>
+
+</component-configuration>

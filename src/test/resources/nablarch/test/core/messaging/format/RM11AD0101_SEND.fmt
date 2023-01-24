@@ -1,0 +1,8 @@
+file-type:        "Fixed"
+text-encoding:    "UTF-8"
+record-length:    60
+
+[data]
+1   title       X(20)     # 書名
+21  publisher   X(20)     # 出版社
+41  authors     X(20)     # 著者

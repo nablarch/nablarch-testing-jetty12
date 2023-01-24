@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration
+        xmlns="http://tis.co.jp/nablarch/component-configuration"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration /component-configuration.xsd">
+  <import file="unit-test.xml"/>
+
+  <component name="httpTestConfiguration"
+             class="nablarch.test.core.http.HttpTestConfiguration">
+    <property name="webBaseDir" value="src/test/resources/nablarch/fw/web/sample/overlay/first/,src/test/resources/nablarch/fw/web/sample/overlay/second/,src/test/resources/nablarch/fw/web/sample/overlay/third/"/>
+    <property name="checkHtml" value="false"/>
+    <property name="backup" value="false"/>
+    <property name="htmlDumpDir" value="tmp/test_dump" />
+    <property name="tempDirectory" value="tmp"/>
+    <!-- ダンプディレクトリへコピーされるHTMLリソースの拡張子。 -->
+    <property name="htmlResourcesExtensionList">
+      <list>
+        <value>html</value>
+      </list>
+    </property>
+  </component>
+
+  <component name="webFrontController" class="nablarch.fw.web.servlet.WebFrontController">
+    <property name="handlerQueue">
+      <list>
+        <component class="nablarch.fw.handler.GlobalErrorHandler"/>
+        <component class="nablarch.fw.web.handler.HttpResponseHandler"/>
+        <component class="nablarch.fw.RequestHandlerEntry">
+          <property name="requestPattern" value="//*.html"/>
+          <property name="handler">
+            <component name="htmlMapping"
+                       class="nablarch.fw.web.handler.ResourceMapping">
+              <property name="baseUri" value="/"/>
+              <property name="basePath" value="servlet:///"/>
+            </component>
+          </property>
+        </component>
+      </list>
+    </property>
+  </component>
+
+
+</component-configuration>
