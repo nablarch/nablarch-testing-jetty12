@@ -1,7 +1,9 @@
 package nablarch.fw.web.httpserver;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -220,13 +222,14 @@ public class HttpServerJetty12 extends HttpServer {
      */
     private Resource toResourceCollection(List<ResourceLocator> warBasePaths) {
         List<Resource> resources = new ArrayList<>(warBasePaths.size());
-        for (ResourceLocator warBasePath : warBasePaths) {
-            String resourcePath = warBasePath.getRealPath();
-            resources.add(ResourceFactory.root().newResource(resourcePath));
-        }
         try {
+            for (ResourceLocator warBasePath : warBasePaths) {
+                String resourcePath = warBasePath.getRealPath();
+                Path normalizedResourcePath = new File(resourcePath).getCanonicalFile().toPath();
+                resources.add(ResourceFactory.root().newResource(normalizedResourcePath));
+            }
             return ResourceFactory.combine(resources);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | IOException e) {
             throw new IllegalStateException(
                     "invalid warBasePath. " + warBasePaths, e);
         }
