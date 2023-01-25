@@ -1,14 +1,9 @@
 package nablarch.fw.web.httpserver;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Enumeration;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -16,12 +11,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpSession;
 
+import java.io.IOException;
+import java.util.Enumeration;
+
 /**
  * {@link HttpSession#invalidate()}の呼び出しを遅延させる{@link Filter}実装クラス。
  *
  * {@link nablarch.test.core.http.HttpRequestTestSupportHandler}では、
  * テストクラスとJetty上で実行されるテスト対象間での{@link nablarch.fw.ExecutionContext}のコピーを行っている。
- * テスト実行中にセッションがinvalidateされた場合、Jetty 9では{@link nablarch.fw.ExecutionContext}の
+ * テスト実行中にセッションがinvalidateされた場合、Jetty 12では{@link nablarch.fw.ExecutionContext}の
  * 書き戻し時に{@link IllegalStateException}がスローされてしまう。
  *
  * これを回避するためには、{@link HttpSession#invalidate()}が実行されるタイミングを遅らせる必要がある。
@@ -31,7 +29,12 @@ import jakarta.servlet.http.HttpSession;
  * invalidateが要求されたことを記録しておく。
  * 後続のすべての処理が終わった後、invalidateが要求された場合、実際にinvalidateを実行する。
  *
+ * Jetty 9 ではラップに標準APIの Proxy を用いていたが、 Jetty 12 では単純なラップクラスを使用している。
+ * これは、 Jetty 12 が内部で {@code instanceof} を使って{@link jakarta.servlet.ServletRequestWrapper} かどうか
+ * 判定している部分があり、 Proxy を用いているとその判定条件に入れないという理由があるためである。
+ *
  * @author Taichi Uragami
+ * @author Tanaka Tomoyuki
  */
 public class LazySessionInvalidationFilter implements Filter {
 
@@ -48,12 +51,11 @@ public class LazySessionInvalidationFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        HttpServletRequest wrappedRequest = RequestWrapper.wrap((HttpServletRequest) request);
+        RequestWrapper wrappedRequest = new RequestWrapper((HttpServletRequest)request);
         chain.doFilter(wrappedRequest, response);
 
-        RequestWrapper wrapper = (RequestWrapper) Proxy.getInvocationHandler(wrappedRequest);
-        if (wrapper.isInvalidated()) {
-            wrapper.invalidateSessionActually();
+        if (wrappedRequest.isInvalidated()) {
+            wrappedRequest.invalidateSessionActually();
         }
     }
 
@@ -62,54 +64,38 @@ public class LazySessionInvalidationFilter implements Filter {
     }
 
     /**
-     * {@link HttpServletRequest}をラップする{@link InvocationHandler}実装クラス。
+     * {@link HttpServletRequest}のラッパー。
      */
-    private static class RequestWrapper implements InvocationHandler, Runnable {
-
-        /** {@link HttpServletRequest}の実体 */
-        private final HttpServletRequest request;
+    private static class RequestWrapper extends HttpServletRequestWrapper implements Runnable {
 
         /** invalidateが要求されたかどうか */
         private boolean invalidated;
+        public RequestWrapper(HttpServletRequest request) {
+            super(request);
+        }
 
-        /**
-         * コンストラクタ。
-         * @param request ラップ対象の{@link HttpServletRequest}
-         */
-        RequestWrapper(HttpServletRequest request) {
-            this.request = request;
+        @Override
+        public HttpSession getSession() {
+            return this.getSession(true);
+        }
+
+        @Override
+        public HttpSession getSession(boolean create) {
+            HttpSession session = super.getSession(create);
+            if (session == null) {
+                return null;
+            }
+            return new SessionWrapper(session, this);
         }
 
         /**
          * 実際に{@link HttpSession#invalidate()}を実行する。
          */
         void invalidateSessionActually() {
-            HttpSession session = request.getSession(false);
+            HttpSession session = super.getSession(false);
             if (session != null) {
                 session.invalidate();
             }
-        }
-
-        /**
-         * {@inheritDoc}
-         *
-         * {@link HttpServletRequest#getSession()}または{@link HttpServletRequest#getSession(boolean)} が起動された場合、
-         * {@link HttpSession}のラップを行う。
-         */
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
-            if (method.equals(HttpServletRequest.class.getDeclaredMethod("getSession"))
-                    || method.equals(HttpServletRequest.class.getDeclaredMethod("getSession",
-                            boolean.class))) {
-                Object session = method.invoke(request, args);
-                if (session == null) {
-                    return null;
-                }
-                return SessionWrapper.wrap((HttpSession) session, this);
-            }
-
-            return method.invoke(request, args);
         }
 
         @Override
@@ -124,75 +110,87 @@ public class LazySessionInvalidationFilter implements Filter {
         boolean isInvalidated() {
             return invalidated;
         }
-
-        /**
-         * {@link HttpServletRequest}のラップを行う。
-         * @param request ラップ対象の{@link HttpServletRequest}
-         * @return ラップした{@link HttpServletRequest}
-         */
-        static HttpServletRequest wrap(HttpServletRequest request) {
-            ClassLoader loader = request.getClass().getClassLoader();
-            Class<?>[] interfaces = { HttpServletRequest.class };
-            InvocationHandler h = new RequestWrapper(request);
-            return (HttpServletRequest) Proxy.newProxyInstance(loader, interfaces, h);
-        }
     }
 
     /**
-     * {@link HttpSession}をラップする{@link InvocationHandler}実装クラス。
+     * {@link HttpSession} のラッパー。
      */
-    private static class SessionWrapper implements InvocationHandler {
-
+    private static class SessionWrapper implements HttpSession {
         /** {@link HttpSession}の実体 */
-        private final HttpSession session;
+        private final HttpSession delegate;
 
         /** invalidate起動時のコールバック */
         private final Runnable invalidationCallback;
 
-        /**
-         * コンストラクタ。
-         * @param session ラップ対象の{@link HttpSession}
-         * @param invalidationCallback invalidate起動時のコールバック
-         */
-        SessionWrapper(HttpSession session, Runnable invalidationCallback) {
-            this.session = session;
+        private SessionWrapper(HttpSession delegate, Runnable invalidationCallback) {
+            this.delegate = delegate;
             this.invalidationCallback = invalidationCallback;
         }
 
-        /**
-         * {@inheritDoc}
-         *
-         * {@link HttpSession#invalidate()}が起動された場合、予め登録されたコールバックを起動し、
-         * Sessionの要素を全削除する。
-         */
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        public void invalidate() {
+            invalidationCallback.run();
 
-            if (method.equals(HttpSession.class.getDeclaredMethod("invalidate"))) {
-                invalidationCallback.run();
-
-                Enumeration<String> names = session.getAttributeNames();
-                while (names.hasMoreElements()) {
-                    String name = names.nextElement();
-                    session.removeAttribute(name);
-                }
-
-                return null;
+            Enumeration<String> names = delegate.getAttributeNames();
+            while (names.hasMoreElements()) {
+                String name = names.nextElement();
+                delegate.removeAttribute(name);
             }
-            return method.invoke(session, args);
         }
 
-        /**
-         * {@link HttpSession}のラップを行う。
-         * @param session ラップ対象の{@link HttpSession}
-         * @param invalidationCallback invalidate起動時のコールバック
-         * @return ラップした{@link HttpSession}
-         */
-        static HttpSession wrap(HttpSession session, Runnable invalidationCallback) {
-            ClassLoader loader = session.getClass().getClassLoader();
-            Class<?>[] interfaces = { HttpSession.class };
-            InvocationHandler h = new SessionWrapper(session, invalidationCallback);
-            return (HttpSession) Proxy.newProxyInstance(loader, interfaces, h);
+        @Override
+        public long getCreationTime() {
+            return delegate.getCreationTime();
+        }
+
+        @Override
+        public String getId() {
+            return delegate.getId();
+        }
+
+        @Override
+        public long getLastAccessedTime() {
+            return delegate.getLastAccessedTime();
+        }
+
+        @Override
+        public ServletContext getServletContext() {
+            return delegate.getServletContext();
+        }
+
+        @Override
+        public void setMaxInactiveInterval(int interval) {
+            delegate.setMaxInactiveInterval(interval);
+        }
+
+        @Override
+        public int getMaxInactiveInterval() {
+            return delegate.getMaxInactiveInterval();
+        }
+
+        @Override
+        public Object getAttribute(String name) {
+            return delegate.getAttribute(name);
+        }
+
+        @Override
+        public Enumeration<String> getAttributeNames() {
+            return delegate.getAttributeNames();
+        }
+
+        @Override
+        public void setAttribute(String name, Object value) {
+            delegate.setAttribute(name, value);
+        }
+
+        @Override
+        public void removeAttribute(String name) {
+            delegate.removeAttribute(name);
+        }
+
+        @Override
+        public boolean isNew() {
+            return delegate.isNew();
         }
     }
 }
