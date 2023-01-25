@@ -5,12 +5,14 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 
+import jakarta.servlet.SessionTrackingMode;
 import nablarch.test.core.http.HttpRequestTestSupportHandler;
 import org.apache.tomcat.JarScanner;
 import org.apache.tomcat.util.scan.StandardJarScanner;
@@ -176,6 +178,9 @@ public class HttpServerJetty12 extends HttpServer {
         WebAppContext webApp = new WebAppContext();
         SessionHandler sessionHandler = new SessionHandler();
         sessionHandler.setSessionIdPathParameterName("none");
+        // デフォルトは COOKIE と URL が設定されるが、 URL が設定されている場合 SessionIdPathParameterName が
+        // none または未設定だと NullPointerException が発生してしまうので、 COOKIE だけに固定している
+        sessionHandler.setSessionTrackingModes(Set.of(SessionTrackingMode.COOKIE));
         webApp.setSessionHandler(sessionHandler);
         webApp.setContextPath(getServletContextPath());
         webApp.setBaseResource(toResourceCollection(getWarBasePaths()));
