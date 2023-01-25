@@ -8,14 +8,11 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 
 import jakarta.servlet.SessionTrackingMode;
-import nablarch.test.core.http.HttpRequestTestSupportHandler;
 import org.apache.tomcat.JarScanner;
 import org.apache.tomcat.util.scan.StandardJarScanner;
 import org.eclipse.jetty.ee10.annotations.AnnotationConfiguration;
@@ -140,12 +137,9 @@ public class HttpServerJetty12 extends HttpServer {
             ((MockHttpRequest) req).setHost("127.0.0.1");
         }
 
-        final CountDownLatch latch = new CountDownLatch(1);
-        sourceContext.setRequestScopedVar(HttpRequestTestSupportHandler.NABLARCH_JETTY_CONNECTOR_LATCH, latch);
         try {
             byte[] rawReq = req.toString().getBytes();
             ByteBuffer response = localConnector.getResponse(ByteBuffer.wrap(rawReq));
-            latch.await(10L, TimeUnit.SECONDS);
             byte[] rawRes = response.array();
             HttpResponse res = HttpResponse.parse(rawRes);
             if (isHttpDumpEnabled()) {
