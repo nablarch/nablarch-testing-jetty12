@@ -140,7 +140,8 @@ public class HttpServerJetty12 extends HttpServer {
         try {
             byte[] rawReq = req.toString().getBytes();
             ByteBuffer response = localConnector.getResponse(ByteBuffer.wrap(rawReq));
-            byte[] rawRes = response.array();
+            byte[] rawRes = new byte[response.remaining()];
+            response.get(rawRes);
             HttpResponse res = HttpResponse.parse(rawRes);
             if (isHttpDumpEnabled()) {
                 dumpHttpMessage(req, res);
