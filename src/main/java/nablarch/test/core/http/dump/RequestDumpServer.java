@@ -7,6 +7,7 @@ import java.util.EnumSet;
 
 import jakarta.servlet.DispatcherType;
 
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -94,7 +95,11 @@ public class RequestDumpServer {
         handler.addFilterWithMapping(filterHolder, "/shutdown", EnumSet.allOf(DispatcherType.class));
         // Servletを登録
         handler.addServletWithMapping(RequestDumpServlet.class, "/");
-        server.setHandler(handler);
+
+        ServletContextHandler servletContextHandler = new ServletContextHandler();
+        servletContextHandler.addHandler(handler);
+
+        server.setHandler(servletContextHandler);
         return server;
     }
 
