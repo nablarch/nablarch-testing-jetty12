@@ -121,6 +121,13 @@
     </dependency>
 
     <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.4.5</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>com.nablarch.framework</groupId>
       <artifactId>nablarch-fw-web-dbstore</artifactId>
       <scope>test</scope>
