@@ -75,18 +75,10 @@
       <groupId>com.nablarch.framework</groupId>
       <artifactId>nablarch-testing</artifactId>
       <exclusions>
-<!--        <exclusion>-->
-<!--          <groupId>org.mortbay.jetty</groupId>-->
-<!--          <artifactId>jsp-2.1-glassfish</artifactId>-->
-<!--        </exclusion>-->
         <exclusion>
           <groupId>org.eclipse.jdt.core.compiler</groupId>
           <artifactId>ecj</artifactId>
         </exclusion>
-<!--        <exclusion>-->
-<!--          <groupId>org.mortbay.jetty</groupId>-->
-<!--          <artifactId>jsp-api-2.1-glassfish</artifactId>-->
-<!--        </exclusion>-->
       </exclusions>
     </dependency>
 
