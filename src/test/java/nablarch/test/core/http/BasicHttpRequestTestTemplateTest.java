@@ -115,7 +115,7 @@ public class BasicHttpRequestTestTemplateTest {
      * </p>
      * <p>
      * Jetty9までは、POSTメソッドでも静的リソースへアクセスできた。これは、DefaultServletのdoPostメソッドの
-     * 実装がdoGetメソッドに処理を以上する形になっていたためできていた。<br>
+     * 実装がdoGetメソッドに処理を委譲する形になっていたためできていた。<br>
      * しかし、Jetty12のDefaultServletはdoPostを実装しなくなったため、静的リソースにPOSTメソッドで
      * アクセスしようとすると405 Method Not Allowedのエラーが発生するようになった。
      * </p>
