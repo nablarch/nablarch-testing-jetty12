@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ./component-configuration.xsd">
+
+    <component name="validationManager" class="nablarch.core.validation.ValidationManager">
+        <property name="convertors" >
+            <list>
+                <component class="nablarch.core.validation.convertor.StringConvertor">
+                    <property name="conversionFailedMessageId" value="MSG90001"/>
+                    <property name="extendedStringConvertors">
+                        <list>
+                        </list>
+                    </property>
+                </component>
+                <component class="nablarch.core.validation.convertor.StringArrayConvertor">
+                </component>
+                <component class="nablarch.core.validation.convertor.IntegerConvertor">
+                    <property name="invalidDigitsIntegerMessageId" value="MSG90001"/>
+                    <property name="invalidDigitsFractionMessageId" value="MSG90001"/>
+                    <property name="multiInputMessageId" value="MSG90001"/>
+                </component>
+                <component class="nablarch.core.validation.convertor.LongConvertor">
+                    <property name="invalidDigitsIntegerMessageId" value="MSG90001"/>
+                    <property name="multiInputMessageId" value="MSG90001"/>
+                </component>
+                <component class="nablarch.core.validation.convertor.BigDecimalConvertor">
+                    <property name="invalidDigitsIntegerMessageId" value="MSG90001"/>
+                    <property name="invalidDigitsFractionMessageId" value="MSG90001"/>
+                    <property name="multiInputMessageId" value="MSG90001"/>
+                </component>
+            </list>
+        </property>
+        <property name="validators" >
+            <list>
+                <component class="nablarch.core.validation.validator.RequiredValidator">
+                    <property name="messageId" value="MSG00010"/>
+                </component>
+                <component class="nablarch.core.validation.validator.NumberRangeValidator">
+                    <property name="maxMessageId" value="MSG00021"/>
+                    <property name="maxAndMinMessageId" value="MSG00021"/>
+                    <property name="minMessageId" value="MSG00021"/>
+                </component>
+                <component class="nablarch.core.validation.validator.LengthValidator">
+                    <property name="maxMessageId" value="MSG00011"/>
+                    <property name="maxAndMinMessageId" value="MSG00011"/>
+                    <property name="fixLengthMessageId" value="MSG00023"/>
+                </component>
+                <!--<component class="nablarch.core.validation.validator.AlnumCharValidator">-->
+                    <!--<property name="messageId" value="MSG00014"/>-->
+                <!--</component>-->
+                <!--<component class="nablarch.core.validation.validator.AlphaCharValidator">-->
+                    <!--<property name="messageId" value="MSG00013"/>-->
+                <!--</component>-->
+                <!--<component class="nablarch.core.validation.validator.japanese.ZenkakuCharValidator">-->
+                    <!--<property name="messageId" value="MSG00017"/>-->
+                <!--</component>-->
+                <!--<component class="nablarch.core.validation.validator.japanese.ZenkakuKatakanaCharValidator">-->
+                    <!--<property name="messageId" value="MSG00020"/>-->
+                <!--</component>-->
+                <!--<component class="nablarch.core.validation.validator.AsciiCharValidator">-->
+                    <!--<property name="messageId" value="MSG00012"/>-->
+                <!--</component>-->
+                <!--<component class="nablarch.core.validation.validator.NumberCharValidator">-->
+                    <!--<property name="messageId" value="MSG00019"/>-->
+                <!--</component>-->
+                <!--<component class="nablarch.common.validation.MailAddressValidator">-->
+                    <!--<property name="messageId" value="MSG00026"/>-->
+                <!--</component>-->
+                <!--<component class="nablarch.common.validation.JapaneseTelNumberValidator">-->
+                    <!--<property name="messageId" value="MSG00027"/>-->
+                <!--</component>-->
+            </list>
+        </property>
+        <property name="formDefinitionCache" ref="formDefinitionCache" />
+    </component>
+
+    <component name="formDefinitionCache" class="nablarch.core.cache.BasicStaticDataCache">
+        <property name="loader">
+            <component class="nablarch.core.validation.FormValidationDefinitionLoader"/>
+        </property>
+    </component>
+
+    <!--<component name="japaneseCharacterChecker" class="nablarch.core.validation.validator.japanese.BasicJapaneseCharacterChecker" >-->
+    <!--</component>-->
+    
+</component-configuration>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration">
+
+  <!-- テスト用に設定値を上書きするコンポーネント設定ファイル -->
+  <import file="unit-test.xml"/>
+
+  <component name="httpTestConfiguration" class="nablarch.test.core.http.HttpTestConfiguration">
+    <property name="webBaseDir" value="src/test/web"/>
+    <property name="htmlDumpDir" value="tmp/test_dump"/>
+    <property name="htmlChecker" ref="dummyChecker"/>
+  </component>
+  <component name="dummyChecker" class="nablarch.test.core.http.DummyHtmlChecker"/>
+
+  <!-- SessionStoreを利用できるように設定する -->
+  <component name="sessionStoreHandler" class="nablarch.common.web.session.SessionStoreHandler">
+    <property name="sessionManager" ref="sessionManager"/>
+  </component>
+
+  <component name="sessionManager" class="nablarch.common.web.session.SessionManager">
+    <property name="defaultStoreName" value="httpSession"/>
+    <property name="availableStores">
+      <list>
+        <component class="nablarch.common.web.session.store.HttpSessionStore">
+          <property name="expires" value="1800"/>
+        </component>
+      </list>
+    </property>
+  </component>
+
+  <!-- パッケージマッピングの設定 -->
+  <component name="packageMapping"
+             class="nablarch.fw.web.handler.HttpRequestJavaPackageMapping">
+    <property name="baseUri" value="/action/"/>
+    <property name="basePackage" value="nablarch.test.core.http.actions"/>
+  </component>
+
+  <component name="webFrontController" class="nablarch.fw.web.servlet.WebFrontController">
+    <property name="handlerQueue">
+      <list>
+        <component class="nablarch.fw.web.handler.HttpResponseHandler"/>
+        <component-ref name="sessionStoreHandler"/>
+        <component-ref name="packageMapping"/>
+      </list>
+    </property>
+  </component>
+
+
+</component-configuration>

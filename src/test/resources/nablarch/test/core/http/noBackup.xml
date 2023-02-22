@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration">
+                         
+    <component name="httpTestConfiguration" class="nablarch.test.core.http.HttpTestConfiguration">
+        <property name="xmlComponentFile" value="classpath:nablarch/test/core/http/testExecute01.xml"/>
+        <property name="htmlDumpDir" value="tmp/test_dump" />
+        <!-- ダンプディレクトリへコピーされるHTMLリソースの拡張子。 -->
+        <property name="htmlResourcesExtensionList">
+            <list>
+                <value>css</value>
+                <value>jpg</value>
+                <value>js</value>
+            </list>
+        </property>        
+        <property name="htmlResourcesRoot" value="testHtmlResourcesRoot" />
+        <property name="backup" value="false" />
+        <property name="webBaseDir" value="src/test/resources/nablarch/test/core/http/web" />
+        <property name="jsTestResourceDir" value="src/test/web" />
+        <property name="htmlResourcesCharset" value="UTF-8" />
+        <property name="htmlCheckerConfig" value="src/test/resources/html-check-config.csv" />
+        <property name="checkHtml" value="false" />
+    </component>
+    
+    <component name="webFrontController" class="nablarch.fw.web.servlet.WebFrontController">
+         <property name="handlerQueue">
+             <list />
+         </property>
+    </component>
+  
+</component-configuration>

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ./component-configuration.xsd">
+
+  <import file="db-default.xml"/>
+  
+  <component class="nablarch.core.db.transaction.SimpleDbTransactionManager" name="testTran">
+    <property name="dbTransactionName" value="test" />
+    <property name="connectionFactory" ref="connectionFactory" />
+    <property name="transactionFactory" ref="jdbcTransactionFactory" />
+  </component>
+  
+  <component name="testFwTran" class="nablarch.core.db.transaction.SimpleDbTransactionManager">
+    <property name="dbTransactionName" value="test-fw"/>
+    <property name="connectionFactory" ref="connectionFactory" />
+    <property name="transactionFactory" ref="jdbcTransactionFactory" />
+  </component>
+
+  <!-- dbInfo -->
+  <component name="dbInfo" class="nablarch.test.core.db.GenericJdbcDbInfo">
+    <property name="dataSource" ref="dataSource"/>
+    <property name="schema" value="${nablarch.db.schema}"/>
+  </component>
+
+
+  <!--&lt;!&ndash; 初期化機能の設定 &ndash;&gt;-->
+  <!--<component name="initializer" class="nablarch.core.repository.initialization.BasicApplicationInitializer">-->
+    <!--<property name="initializeList">-->
+      <!--<list>-->
+        <!--<component-ref name="validationManager"/>-->
+        <!--<component-ref name="formDefinitionCache"/>-->
+        <!--<component-ref name="japaneseCharacterChecker"/>-->
+      <!--</list>-->
+    <!--</property>-->
+  <!--</component>-->
+
+  <component name="stringResourceHolder" class="nablarch.core.message.MockStringResourceHolder">
+  </component>
+
+  <!--<component name="validationManager"-->
+             <!--class="nablarch.core.validation.ValidationManager">-->
+    <!--<property name="convertors">-->
+      <!--<list>-->
+        <!--<component class="nablarch.core.validation.convertor.StringConvertor">-->
+          <!--<property name="conversionFailedMessageId" value="MSG90001"/>-->
+        <!--</component>-->
+        <!--<component-->
+                <!--class="nablarch.core.validation.convertor.StringArrayConvertor">-->
+        <!--</component>-->
+        <!--<component class="nablarch.core.validation.convertor.IntegerConvertor">-->
+          <!--<property name="invalidDigitsIntegerMessageId" value="MSG00001"/>-->
+          <!--<property name="invalidDigitsFractionMessageId" value="MSG00001"/>-->
+          <!--<property name="multiInputMessageId" value="MSG00001"/>-->
+        <!--</component>-->
+        <!--<component class="nablarch.core.validation.convertor.LongConvertor">-->
+          <!--<property name="invalidDigitsIntegerMessageId" value="MSG00001"/>-->
+          <!--<property name="multiInputMessageId" value="MSG00001"/>-->
+        <!--</component>-->
+        <!--<component-->
+                <!--class="nablarch.core.validation.convertor.BigDecimalConvertor">-->
+          <!--<property name="invalidDigitsIntegerMessageId" value="MSG00001"/>-->
+          <!--<property name="invalidDigitsFractionMessageId" value="MSG00001"/>-->
+          <!--<property name="multiInputMessageId" value="MSG00001"/>-->
+        <!--</component>-->
+      <!--</list>-->
+    <!--</property>-->
+    <!--<property name="validators">-->
+      <!--<list>-->
+        <!--<component class="nablarch.core.validation.validator.RequiredValidator">-->
+          <!--<property name="messageId" value="MSG00010"/>-->
+        <!--</component>-->
+        <!--<component-->
+                <!--class="nablarch.core.validation.validator.NumberRangeValidator">-->
+          <!--<property name="maxMessageId" value="MSG00021"/>-->
+          <!--<property name="maxAndMinMessageId" value="MSG00021"/>-->
+          <!--<property name="minMessageId" value="MSG00021"/>-->
+        <!--</component>-->
+        <!--<component class="nablarch.core.validation.validator.LengthValidator">-->
+          <!--<property name="maxMessageId" value="MSG00011"/>-->
+          <!--<property name="maxAndMinMessageId" value="MSG00011"/>-->
+          <!--<property name="fixLengthMessageId" value="MSG00023"/>-->
+        <!--</component>-->
+        <!--<component-->
+                <!--class="nablarch.core.validation.validator.AlnumCharValidator">-->
+          <!--<property name="messageId" value="MSG00014"/>-->
+        <!--</component>-->
+        <!--<component-->
+                <!--class="nablarch.core.validation.validator.AlphaCharValidator">-->
+          <!--<property name="messageId" value="MSG00013"/>-->
+        <!--</component>-->
+        <!--<component-->
+                <!--class="nablarch.core.validation.validator.japanese.ZenkakuCharValidator">-->
+          <!--<property name="messageId" value="MSG00017"/>-->
+        <!--</component>-->
+        <!--<component-->
+                <!--class="nablarch.core.validation.validator.japanese.ZenkakuKatakanaCharValidator">-->
+          <!--<property name="messageId" value="MSG00020"/>-->
+        <!--</component>-->
+        <!--<component-->
+                <!--class="nablarch.core.validation.validator.AsciiCharValidator">-->
+          <!--<property name="messageId" value="MSG00012"/>-->
+        <!--</component>-->
+        <!--<component-->
+                <!--class="nablarch.core.validation.validator.NumberCharValidator">-->
+          <!--<property name="messageId" value="MSG00019"/>-->
+        <!--</component>-->
+        <!--<component class="nablarch.core.validation.validator.japanese.HankakuKanaCharValidator">-->
+          <!--<property name="messageId" value="MSG00016"/>-->
+        <!--</component>-->
+        <!--<component class="nablarch.core.validation.validator.japanese.HankakuCharValidator">-->
+          <!--<property name="messageId" value="MSG00015"/>-->
+        <!--</component>-->
+        <!--<component class="nablarch.core.validation.validator.japanese.ZenkakuHiraganaCharValidator">-->
+          <!--<property name="messageId" value="MSG00018"/>-->
+        <!--</component>-->
+        <!--<component class="nablarch.core.validation.validator.japanese.ZenkakuAndGaijiCharValidator">-->
+          <!--<property name="messageId" value="MSG00017"/>-->
+        <!--</component>-->
+        <!--<component class="nablarch.core.validation.validator.unicode.SystemCharValidator">-->
+          <!--<property name="defaultCharsetDef" ref="charsetDefCache"/>-->
+          <!--<property name="messageId" value="MSG90001"/>-->
+        <!--</component>-->
+      <!--</list>-->
+    <!--</property>-->
+    <!--<property name="formDefinitionCache" ref="formDefinitionCache">-->
+    <!--</property>-->
+  <!--</component>-->
+
+  <!--<component name="formDefinitionCache" class="nablarch.core.cache.BasicStaticDataCache">-->
+    <!--<property name="loader">-->
+      <!--<component class="nablarch.core.validation.FormValidationDefinitionLoader"/>-->
+    <!--</property>-->
+  <!--</component>-->
+
+  <!--&lt;!&ndash; 許容文字集合定義のキャッシュ &ndash;&gt;-->
+  <!--<component name="charsetDefCache" class="nablarch.core.validation.validator.unicode.CachingCharsetDef" >-->
+    <!--<property name="charsetDef" ref="systemPermittedCharset"/>-->
+  <!--</component>-->
+
+  <!--&lt;!&ndash; ２つの許容文字集合定義を組み合わせ &ndash;&gt;-->
+  <!--<component name="systemPermittedCharset" class="nablarch.core.validation.validator.unicode.CompositeCharsetDef">-->
+    <!--<property name="charsetDefList">-->
+      <!--<list>-->
+        <!--<component-ref name="asciiWithoutControlCode"/>-->
+        <!--<component-ref name="kana"/>-->
+      <!--</list>-->
+    <!--</property>-->
+  <!--</component>-->
+  <!--&lt;!&ndash; ASCII &ndash;&gt;-->
+  <!--<component name="asciiWithoutControlCode" class="nablarch.core.validation.validator.unicode.RangedCharsetDef">-->
+    <!--<property name="startCodePoint" value="U+0020"/>-->
+    <!--<property name="startCodePoint" value="U+0020"/>-->
+    <!--<property name="endCodePoint" value="U+007E"/>-->
+  <!--</component>-->
+  <!--&lt;!&ndash; カナ、CJK統合 &ndash;&gt;-->
+  <!--<component name="kana" class="nablarch.core.validation.validator.unicode.BlockNameCharsetDef">-->
+    <!--<property name="blockNames">-->
+      <!--<list>-->
+        <!--<value>HIRAGANA</value>-->
+        <!--<value>KATAKANA</value>-->
+        <!--<value>CJK_UNIFIED_IDEOGRAPHS</value>-->
+      <!--</list>-->
+    <!--</property>-->
+  <!--</component>-->
+
+
+  <!--&lt;!&ndash; 日本語文字チェックコンポーネント &ndash;&gt;-->
+  <!--<component name="japaneseCharacterChecker"-->
+             <!--class="nablarch.core.validation.validator.japanese.BasicJapaneseCharacterChecker">-->
+  <!--</component>-->
+</component-configuration>
