@@ -104,30 +104,12 @@ public class BasicHttpRequestTestTemplateTest {
         target.execute("overlayFirst");   // 1番目のWebAppであるappのリソースを取得できること。
         target.execute("overlaySecond");  // 2番目のWebAppであるappのリソースを取得できること。
         target.execute("overlayThird");   // 3番目のWebAppであるappのリソースを取得できること。
+        target.execute("overlayNotFound"); // 存在しないリソースは取得できないこと。
     }
 
 
-    /**
-     * テスト用の{@link BasicHttpRequestTestTemplate}
-     * <p>
-     * このクラスは、HTTPメソッドをテストデータで指定できるように拡張している。<br>
-     * これは、Jetty12が静的リソースへのアクセスをPOSTでできなくなったことに起因する。
-     * </p>
-     * <p>
-     * Jetty9までは、POSTメソッドでも静的リソースへアクセスできた。これは、DefaultServletのdoPostメソッドの
-     * 実装がdoGetメソッドに処理を委譲する形になっていたためできていた。<br>
-     * しかし、Jetty12のDefaultServletはdoPostを実装しなくなったため、静的リソースにPOSTメソッドで
-     * アクセスしようとすると405 Method Not Allowedのエラーが発生するようになった。
-     * </p>
-     * <p>
-     * 本来はNTFを改良して任意のHTTPメソッドを指定できるようにすべきだが、
-     * クエリパラメータの扱いをどうすべきかなど考慮しなければならないことが多いため、
-     * 2023年の対応では一旦アドホックな対応で済ませることにした。<br>
-     * NTFが改良されて標準機能として任意のHTTPメソッドを指定できるようになった場合は、
-     * そちらを利用する方法に修正すること。
-     * </p>
-     */
-    private static class BasicHttpRequestTestTemplateForTesting extends AbstractHttpRequestTestTemplate<BasicHttpRequestTestCaseInfo> {
+    /** テスト用の{@link BasicHttpRequestTestTemplate} */
+    private static class BasicHttpRequestTestTemplateForTesting extends BasicHttpRequestTestTemplate {
 
         private BasicHttpRequestTestTemplateForTesting(Class<?> testClass) {
             super(testClass);
@@ -142,62 +124,15 @@ public class BasicHttpRequestTestTemplateTest {
         protected HttpServer createHttpServer() {
             return new HttpServerForTesting();
         }
-
-        @Override
-        protected HttpRequest createHttpRequest(BasicHttpRequestTestCaseInfo testCaseInfo) {
-            final MockHttpRequest httpRequest = (MockHttpRequest)super.createHttpRequest(testCaseInfo);
-            httpRequest.setMethod(testCaseInfo.getHttpMethod());
-            return httpRequest;
-        }
-
-        @Override
-        protected BasicHttpRequestTestCaseInfo createTestCaseInfo(
-                String sheetName,
-                Map<String, String> testCaseParams,
-                List<Map<String, String>> contexts,
-                List<Map<String, String>> requests,
-                List<Map<String, String>> expectedResponses,
-                List<Map<String, String>> cookie) {
-            return new BasicHttpRequestTestCaseInfo(sheetName,
-                    testCaseParams,
-                    contexts,
-                    requests,
-                    expectedResponses,
-                    cookie);
-        }
-    }
-
-    /** {@link TestCaseInfo}を、HTTPメソッドを指定できるように拡張したクラス。 */
-    private static class BasicHttpRequestTestCaseInfo extends TestCaseInfo {
-        /** コンテキスト */
-        private final List<Map<String, String>> context;
-
-        public BasicHttpRequestTestCaseInfo(
-                String sheetName,
-                Map<String, String> testCaseParams,
-                List<Map<String, String>> context,
-                List<Map<String, String>> request,
-                List<Map<String, String>> expectedResponseListMap,
-                List<Map<String, String>> cookie) {
-            super(sheetName, testCaseParams, context, request, expectedResponseListMap, cookie);
-            this.context = context;
-        }
-
-        /**
-         * テスト対象とするリクエストのHTTPメソッドを返却する。
-         *
-         * @return HTTPメソッド
-         */
-        public String getHttpMethod() {
-            String httpMethod = context.get(0).get("HTTP_METHOD");
-            return StringUtil.hasValue(httpMethod) ? httpMethod : "POST";
-        }
     }
 
     /** テスト用HttpServer */
     private static class HttpServerForTesting extends HttpServerJetty12 {
 
-        /** {@inheritDoc} */
+        /** {@inheritDoc}
+         * コンテナが返却したステータスコードとフレームワークが設定したステータスコードが異なる場合を検証するため、
+         * コンテナが返却したステータスコードを{@link HttpRequestTestSupport}に設定する。
+         */
         @Override
         public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
             HttpResponse res = super.handle(req, ctx);
