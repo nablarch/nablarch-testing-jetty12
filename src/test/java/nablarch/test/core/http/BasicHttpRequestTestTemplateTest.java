@@ -128,8 +128,9 @@ public class BasicHttpRequestTestTemplateTest {
         /** {@inheritDoc}
          *  {@link HttpRequestTestSupportHandler#handle}内で、後続ハンドラから返却された
          *  {@link HttpResponse}のステータスコードを内部に保持している。
-         *  しかし{@link HttpRequestTestSupportHandler#handle}で保持されるステータスコードは
-         *  Nablarchが設定したステータスコードであり、その後コンテナが返却したレスポンスのステータスコードと一致しないことがある。
+         *  この時、保持されるステータスコードはNablarchが設定したステータスコードである。
+         *  しかし、コンテナがNablarchの設定したステータスコードとは異なるステータスコードを返却する場合がある。
+         *  (サーブレットフォワード先のコンテンツが見つからない場合などはNablarchは200を返すがコンテナは404を返そうとする。)
          *  ここではコンテナが返却したステータスコードを検証に使用したいため、{@link HttpServer}が返却したレスポンスを
          *  解析した後、ここで改めて{@link HttpRequestTestSupportHandler}のステータスコードにセットしている。
          */
