@@ -126,8 +126,12 @@ public class BasicHttpRequestTestTemplateTest {
     private static class HttpServerForTesting extends HttpServerJetty12 {
 
         /** {@inheritDoc}
-         * コンテナが返却したステータスコードとフレームワークが設定したステータスコードが異なる場合を検証するため、
-         * コンテナが返却したステータスコードを{@link HttpRequestTestSupport}に設定する。
+         *  {@link HttpRequestTestSupportHandler#handle}内で、後続ハンドラから返却された
+         *  {@link HttpResponse}のステータスコードを内部に保持している。
+         *  しかし{@link HttpRequestTestSupportHandler#handle}で保持されるステータスコードは
+         *  Nablarchが設定したステータスコードであり、その後コンテナが返却したレスポンスのステータスコードと一致しないことがある。
+         *  ここではコンテナが返却したステータスコードを検証に使用したいため、{@link HttpServer}が返却したレスポンスを
+         *  解析した後、ここで改めて{@link HttpRequestTestSupportHandler}のステータスコードにセットしている。
          */
         @Override
         public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
