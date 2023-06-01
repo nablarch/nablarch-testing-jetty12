@@ -1,18 +1,14 @@
 package nablarch.test.core.http;
 
-import nablarch.core.util.StringUtil;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.web.HttpRequest;
 import nablarch.fw.web.HttpResponse;
 import nablarch.fw.web.HttpServer;
-import nablarch.fw.web.MockHttpRequest;
 import nablarch.fw.web.httpserver.HttpServerJetty12;
 import nablarch.test.RepositoryInitializer;
 import org.junit.After;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
