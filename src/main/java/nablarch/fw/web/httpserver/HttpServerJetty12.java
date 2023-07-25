@@ -19,6 +19,7 @@ import nablarch.test.core.http.HttpRequestTestSupportHandler;
 import org.apache.tomcat.JarScanner;
 import org.apache.tomcat.util.scan.StandardJarScanner;
 import org.eclipse.jetty.ee10.annotations.AnnotationConfiguration;
+import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
@@ -187,11 +188,16 @@ public class HttpServerJetty12 extends HttpServer {
         webApp.setSessionHandler(sessionHandler);
         webApp.setContextPath(getServletContextPath());
         webApp.setBaseResource(toResourceCollection(getWarBasePaths()));
-        webApp.setClassLoader(Thread.currentThread().getContextClassLoader());
         StandardJarScanner scanner = new StandardJarScanner();
         scanner.setScanManifest(false);
         webApp.setAttribute(JarScanner.class.getName(), scanner);
         webApp.setTempDirectoryPersistent(true);
+
+        webApp.setAttribute(MetaInfConfiguration.CONTAINER_JAR_PATTERN,
+                ".*/jetty-jakarta-servlet-api-[^/]*\\.jar$|"
+                        + ".*jakarta.servlet.jsp.jstl-[^/]*\\.jar|"
+                        + ".*taglibs-standard.*\\.jar|"
+                        + ".*/nablarch-fw-web-tag.*\\.jar");
 
         webApp.addFilter(LazySessionInvalidationFilter.class, "/*",
                 EnumSet.of(DispatcherType.REQUEST));
@@ -206,7 +212,7 @@ public class HttpServerJetty12 extends HttpServer {
                 new WebXmlConfiguration(),
                 new AnnotationConfiguration()
         };
-        webApp.setConfigurations(configurations);
+        webApp.addConfiguration(configurations);
 
         File tmpDir = getTempDirectory();
         if (tmpDir != null) {
