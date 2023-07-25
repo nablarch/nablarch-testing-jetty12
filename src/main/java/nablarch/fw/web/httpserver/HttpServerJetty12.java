@@ -191,7 +191,7 @@ public class HttpServerJetty12 extends HttpServer {
         StandardJarScanner scanner = new StandardJarScanner();
         scanner.setScanManifest(false);
         webApp.setAttribute(JarScanner.class.getName(), scanner);
-        webApp.setPersistTempDirectory(true);
+        webApp.setTempDirectoryPersistent(true);
 
         webApp.addFilter(LazySessionInvalidationFilter.class, "/*",
                 EnumSet.of(DispatcherType.REQUEST));

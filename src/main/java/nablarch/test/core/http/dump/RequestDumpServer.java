@@ -97,7 +97,7 @@ public class RequestDumpServer {
         handler.addServletWithMapping(RequestDumpServlet.class, "/");
 
         ServletContextHandler servletContextHandler = new ServletContextHandler();
-        servletContextHandler.addHandler(handler);
+        servletContextHandler.setHandler(handler);
 
         server.setHandler(servletContextHandler);
         return server;
