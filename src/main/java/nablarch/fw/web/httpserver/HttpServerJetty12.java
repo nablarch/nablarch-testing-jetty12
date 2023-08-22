@@ -19,6 +19,8 @@ import nablarch.test.core.http.HttpRequestTestSupportHandler;
 import org.apache.tomcat.JarScanner;
 import org.apache.tomcat.util.scan.StandardJarScanner;
 import org.eclipse.jetty.ee10.annotations.AnnotationConfiguration;
+import org.eclipse.jetty.ee10.webapp.JspConfiguration;
+import org.eclipse.jetty.ee10.webapp.WebAppConfiguration;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
@@ -188,20 +190,26 @@ public class HttpServerJetty12 extends HttpServer {
         webApp.setContextPath(getServletContextPath());
         webApp.setBaseResource(toResourceCollection(getWarBasePaths()));
         webApp.setClassLoader(Thread.currentThread().getContextClassLoader());
+
         StandardJarScanner scanner = new StandardJarScanner();
         scanner.setScanManifest(false);
         webApp.setAttribute(JarScanner.class.getName(), scanner);
-        webApp.setPersistTempDirectory(true);
+
+        webApp.setTempDirectoryPersistent(true);
 
         webApp.addFilter(LazySessionInvalidationFilter.class, "/*",
                 EnumSet.of(DispatcherType.REQUEST));
+
         Filter webFrontController = getWebFrontController();
         webApp.addFilter(
                 new FilterHolder(webFrontController)
                 , "/*"
                 , EnumSet.of(DispatcherType.REQUEST)
         );
+
         Configuration[] configurations = {
+                new WebAppConfiguration(),
+                new JspConfiguration(),
                 new WebInfConfiguration(),
                 new WebXmlConfiguration(),
                 new AnnotationConfiguration()
