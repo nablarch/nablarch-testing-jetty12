@@ -2,10 +2,15 @@ package nablarch.fw.web;
 
 import static nablarch.test.StringMatcher.startsWith;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.*;
-import static org.junit.Assume.*;
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeThat;
 
 import java.io.BufferedReader;
 import java.io.File;
