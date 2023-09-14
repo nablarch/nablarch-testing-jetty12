@@ -560,7 +560,7 @@ public class HttpServerTest {
           <LINK REL="stylesheet" HREF="./app/relative.css" />
           <LINK REL="stylesheet" HREF="./app/hoge/relative.css" />
           <LINK REL="stylesheet" HREF="./app/../hoge/relative.css" />
-          <LINK REL="stylesheet" HREF="./app/../../hoge/relative.css" />                  
+          <LINK REL="stylesheet" HREF="./app/../../hoge/relative.css" />
         </head>
         <body>
           <p>Hello world</p>
