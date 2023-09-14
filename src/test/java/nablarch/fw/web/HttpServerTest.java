@@ -2,12 +2,12 @@ package nablarch.fw.web;
 
 import static nablarch.test.StringMatcher.startsWith;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
@@ -22,9 +22,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import nablarch.common.web.WebConfig;
-import nablarch.core.repository.ObjectLoader;
 import nablarch.core.repository.SystemRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,21 +70,17 @@ public class HttpServerTest {
         .setServletContextPath("/nabla_app")
         .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
         .addHandler(new InternalMonitor())
-        .addHandler("/path/to/somewhere/Greeting", new HttpRequestHandler() {
-            public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                ctx.setRequestScopedVar("greeting", "Hello World!");
-                return new HttpResponse(201).setContentPath(
-                        "servlet:///jsp/index.jsp"
-                );
-            }
+        .addHandler("/path/to/somewhere/Greeting", (HttpRequestHandler) (req, ctx) -> {
+            ctx.setRequestScopedVar("greeting", "Hello World!");
+            return new HttpResponse(201).setContentPath(
+                    "servlet:///jsp/index.jsp"
+            );
         })
-        .addHandler("/path/to/somewhere/ja/Greeting", new HttpRequestHandler() {
-            public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                ctx.setRequestScopedVar("greeting", "こんにちは");
-                return new HttpResponse(201).setContentPath(
-                        "servlet:///ja/jsp/index.jsp"
-                );
-            }
+        .addHandler("/path/to/somewhere/ja/Greeting", (HttpRequestHandler) (req, ctx) -> {
+            ctx.setRequestScopedVar("greeting", "こんにちは");
+            return new HttpResponse(201).setContentPath(
+                    "servlet:///ja/jsp/index.jsp"
+            );
         })
         .startLocal();
         
@@ -126,16 +122,13 @@ public class HttpServerTest {
     /**
      * リダイレクションのテスト
      */
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testRedirection() {
         HttpServer server = new HttpServerJetty12()
         .setServletContextPath("/nabla_app")
         .setWarBasePath("classpath://nablarch/fw/web/sample/app/")
-        .addHandler("/path/that/shouldNotBeRead//", new HttpRequestHandler() {
-            public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                return new HttpResponse("redirect:///redirectTo/caution.html");
-            }
-        })
+        .addHandler("/path/that/shouldNotBeRead//", (HttpRequestHandler) (req, ctx) -> new HttpResponse("redirect:///redirectTo/caution.html"))
         .startLocal();
         
         HttpResponse res = server.handle(new MockHttpRequest(Hereis.string()), new ExecutionContext());
@@ -148,6 +141,7 @@ public class HttpServerTest {
         assertEquals("http://127.0.0.1/nabla_app/redirectTo/caution.html", res.getLocation());
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testThatWarBasePathCanBeAssigned() {
         HttpServer server = new HttpServerJetty12()
@@ -231,14 +225,11 @@ public class HttpServerTest {
         }
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testHandle() {
         HttpServer server = new HttpServerJetty12()
-        .addHandler("/test//", new HttpRequestHandler() {
-            public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                return new HttpResponse(200).write("hello world");
-            }
-        })
+        .addHandler("/test//", (HttpRequestHandler) (req, ctx) -> new HttpResponse(200).write("hello world"))
         .startLocal();
         
         HttpResponse res = server.handle(
@@ -280,6 +271,7 @@ public class HttpServerTest {
         assertEquals("hello world", res.getBodyString().trim());
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testDefaultNotFoundPage() {
         HttpServer server = new HttpServerJetty12().startLocal();
@@ -299,13 +291,12 @@ public class HttpServerTest {
         assertThat(res.getBodyString(), is(containsString("Jetty")));
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testDefaultSystemErrorPage() {
         HttpServer server = new HttpServerJetty12()
-        .addHandler("/app/", new HttpRequestHandler() {
-            public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                throw new RuntimeException();
-            }
+        .addHandler("/app/", (HttpRequestHandler) (req, ctx) -> {
+            throw new RuntimeException();
         })
         .startLocal();
 
@@ -325,13 +316,12 @@ public class HttpServerTest {
         assertThat(res.getBodyString(), is(containsString("Jetty")));
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testUnauthorizedErrorPage() {
         HttpServer server = new HttpServerJetty12()
-        .addHandler("/secure//", new HttpRequestHandler() {
-            public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                throw new HttpErrorResponse(401);
-            }
+        .addHandler("/secure//", (HttpRequestHandler) (req, ctx) -> {
+            throw new HttpErrorResponse(401);
         })
         .startLocal();
         
@@ -351,16 +341,13 @@ public class HttpServerTest {
         assertThat(res.getBodyString(), is(containsString("Jetty")));
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testRedirecting() {
         HttpServer server = new HttpServerJetty12()
-        .addHandler("/app/Dispatcher",new HttpRequestHandler() {
-            public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                return HttpResponse.Status.SEE_OTHER
-                                   .handle(req, ctx)
-                                   .setLocation(req.getParam("nextPage")[0]);
-            }
-        })
+        .addHandler("/app/Dispatcher", (HttpRequestHandler) (req, ctx) -> HttpResponse.Status.SEE_OTHER
+                           .handle(req, ctx)
+                           .setLocation(req.getParam("nextPage")[0]))
         .startLocal();
         
         ExecutionContext ctx = new ExecutionContext();
@@ -375,6 +362,7 @@ public class HttpServerTest {
 
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testDumpHttpMessageGeneratedByJspEngine() throws Exception {
         File httpDumpFile = new File("http_dump/test.html");
@@ -383,13 +371,9 @@ public class HttpServerTest {
         }
 
         HttpServer server = new HttpServerJetty12()
-        .addHandler("/app/hasLink.do", new HttpRequestHandler() {
-            public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                return new HttpResponse().setContentPath(
-                    "servlet://jsp/hasLink.jsp"
-                );
-            }
-        })
+        .addHandler("/app/hasLink.do", (HttpRequestHandler) (req, ctx) -> new HttpResponse().setContentPath(
+            "servlet://jsp/hasLink.jsp"
+        ))
         .setWarBasePath("classpath://nablarch/fw/web/sample/")
         .setHttpDumpFilePath("http_dump/test.html")
         .startLocal();
@@ -458,22 +442,21 @@ public class HttpServerTest {
     @Test
     public void testServerStart() throws InterruptedException {
         final HttpServer server = new HttpServerJetty12();
-        Thread serverThread = new Thread() {
-            public void run() {
-                server.start();
-                assertTrue(true);
-                server.join();
-            }
-        };
+        Thread serverThread = new Thread(() -> {
+            server.start();
+            assertTrue(true);
+            server.join();
+        });
         serverThread.start();
-        Thread.currentThread().sleep(2000);
+        Thread.sleep(2000);
     }
 
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testThatStripOutsJSessionIdFromStaticLink() {
         MockHttpRequest request = new MockHttpRequest();
         HttpServer httpServer = new HttpServerJetty12();
-        String editedTag = httpServer.rewriteUriPath(Hereis.string(), request).toString();
+        String editedTag = httpServer.rewriteUriPath(Hereis.string(), request);
         /********************************************************************
         <link rel="stylesheet" type="text/css" href="/css/reset.css;jsessionid=h60qsqhpuf091759hkbwi2833" charset="UTF-8" />
         **********************************************************************/
@@ -484,17 +467,18 @@ public class HttpServerTest {
         **********************************************************************/
     }
 
+    @SuppressWarnings({"DanglingJavadoc", "ResultOfMethodCallIgnored"})
     @Test
     public void testHttpMessageDumpFacilities() throws Exception {
         File dumpRoot = new File("tmp/http_dump/");
         dumpRoot.mkdirs();
-        for (File file : dumpRoot.listFiles()) {
+        for (File file : Objects.requireNonNull(dumpRoot.listFiles())) {
             file.delete();
         }
         
         File docRoot = new File("tmp/doc_root/");
         docRoot.mkdirs();
-        for (File file : docRoot.listFiles()) {
+        for (File file : Objects.requireNonNull(docRoot.listFiles())) {
             file.delete();
         }
 
@@ -502,35 +486,33 @@ public class HttpServerTest {
         .setHttpDumpRoot(dumpRoot.getPath())
         .setHttpDumpEnabled(true)
         .setWarBasePath("file://tmp/doc_root/")
-        .addHandler("/app/test.html", new HttpRequestHandler() {
-            public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                String crlf = "\r\n";
-                ctx.invalidateSession();
-                String body = Hereis.string();
-                body = body.replaceAll("crlf", crlf);
-                return new HttpResponse()
-                       .setContentType("text/html;charset=utf8")
-                       .write(body);
-                /****************************
-                <html>
-                <head>
-                  <LINK REL="stylesheet" HREF="/css/common.css" />
-                  <link rel="stylesheet" href="./style.css" />
-                  <script language="javascript" src="/js/common.js" />
-                  <LINK REL="stylesheet" HREF="relative.css" />
-                  <LINK REL="stylesheet" HREF="hoge/relative.css" />
-                  <LINK REL="stylesheet" HREF="../hoge/relative.css" />
-                  <LINK REL="stylesheet" HREF="../../hoge/relative.css" />                  
-                </head>
-                <body>
-                  <p>Hello world</p>
-                  <p>
-                    <a href="/page/example.jsp">example</a>
-                  </p>
-                </body>
-                </html>         
-                *****************************/
-            }
+        .addHandler("/app/test.html", (HttpRequestHandler) (req, ctx) -> {
+            String crlf = "\r\n";
+            ctx.invalidateSession();
+            String body = Hereis.string();
+            body = body.replaceAll("crlf", crlf);
+            return new HttpResponse()
+                   .setContentType("text/html;charset=utf8")
+                   .write(body);
+            /****************************
+            <html>
+            <head>
+              <LINK REL="stylesheet" HREF="/css/common.css" />
+              <link rel="stylesheet" href="./style.css" />
+              <script language="javascript" src="/js/common.js" />
+              <LINK REL="stylesheet" HREF="relative.css" />
+              <LINK REL="stylesheet" HREF="hoge/relative.css" />
+              <LINK REL="stylesheet" HREF="../hoge/relative.css" />
+              <LINK REL="stylesheet" HREF="../../hoge/relative.css" />
+            </head>
+            <body>
+              <p>Hello world</p>
+              <p>
+                <a href="/page/example.jsp">example</a>
+              </p>
+            </body>
+            </html>
+            *****************************/
         })
         .startLocal();
         
@@ -550,7 +532,7 @@ public class HttpServerTest {
         assertEquals("/app/test.html", req.getRequestPath());
         
         File[] dumpFiles = dumpRoot.listFiles();
-        assertEquals(1, dumpFiles.length);
+        assertEquals(1, Objects.requireNonNull(dumpFiles).length);
         File dumpFile = dumpFiles[0];
         
         assertTrue(dumpFile.exists());
@@ -594,17 +576,18 @@ public class HttpServerTest {
     /**
      * ボディ無しでもダンプできること。
      */
+    @SuppressWarnings({"DanglingJavadoc", "ResultOfMethodCallIgnored"})
     @Test
     public void testHttpMessageDumpBodyEmptyFacilities() throws Exception {
         File dumpRoot = new File("tmp/http_dump/");
         dumpRoot.mkdirs();
-        for (File file : dumpRoot.listFiles()) {
+        for (File file : Objects.requireNonNull(dumpRoot.listFiles())) {
             file.delete();
         }
 
         File docRoot = new File("tmp/doc_root/");
         docRoot.mkdirs();
-        for (File file : docRoot.listFiles()) {
+        for (File file : Objects.requireNonNull(docRoot.listFiles())) {
             file.delete();
         }
 
@@ -612,11 +595,7 @@ public class HttpServerTest {
                 .setHttpDumpRoot(dumpRoot.getPath())
                 .setHttpDumpEnabled(true)
                 .setWarBasePath("file://tmp/doc_root/")
-                .addHandler("/app/test.html", new HttpRequestHandler() {
-                    public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                        return new HttpResponse().setStatusCode(200);
-                    }
-                })
+                .addHandler("/app/test.html", (HttpRequestHandler) (req, ctx) -> new HttpResponse().setStatusCode(200))
                 .startLocal();
 
         assertTrue(server.isHttpDumpEnabled());
@@ -632,7 +611,7 @@ public class HttpServerTest {
         assertEquals("/app/test.html", req.getRequestPath());
 
         File[] dumpFiles = dumpRoot.listFiles();
-        assertEquals(1, dumpFiles.length);
+        assertEquals(1, Objects.requireNonNull(dumpFiles).length);
         File dumpFile = dumpFiles[0];
 
         assertTrue(dumpFile.exists());
@@ -657,31 +636,28 @@ public class HttpServerTest {
 
     /**
      * ボディ無しでもダンプできること。
-     * 
      * (webConfig.setContentTypeForResponseWithNoBodyEnabled(true)の設定がある場合)
      *
      */
+    @SuppressWarnings({"DanglingJavadoc", "ResultOfMethodCallIgnored"})
     @Test
     public void testHttpMessageDumpBodyEmptyFacilitiesForResponseWithNoBodyEnabledTrue() throws Exception {
         final WebConfig webConfig = new WebConfig();
         webConfig.setAddDefaultContentTypeForNoBodyResponse(true);
-        SystemRepository.load(new ObjectLoader() {
-            @Override
-            public Map<String, Object> load() {
-                final Map<String, Object> result = new HashMap<String, Object>();
-                result.put("webConfig", webConfig);
-                return result;
-            }
+        SystemRepository.load(() -> {
+            final Map<String, Object> result = new HashMap<>();
+            result.put("webConfig", webConfig);
+            return result;
         });
         File dumpRoot = new File("tmp/http_dump/");
         dumpRoot.mkdirs();
-        for (File file : dumpRoot.listFiles()) {
+        for (File file : Objects.requireNonNull(dumpRoot.listFiles())) {
             file.delete();
         }
 
         File docRoot = new File("tmp/doc_root/");
         docRoot.mkdirs();
-        for (File file : docRoot.listFiles()) {
+        for (File file : Objects.requireNonNull(docRoot.listFiles())) {
             file.delete();
         }
 
@@ -689,11 +665,7 @@ public class HttpServerTest {
                 .setHttpDumpRoot(dumpRoot.getPath())
                 .setHttpDumpEnabled(true)
                 .setWarBasePath("file://tmp/doc_root/")
-                .addHandler("/app/test.html", new HttpRequestHandler() {
-                    public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                        return new HttpResponse().setStatusCode(200);
-                    }
-                })
+                .addHandler("/app/test.html", (HttpRequestHandler) (req, ctx) -> new HttpResponse().setStatusCode(200))
                 .startLocal();
 
         assertTrue(server.isHttpDumpEnabled());
@@ -709,7 +681,7 @@ public class HttpServerTest {
         assertEquals("/app/test.html", req.getRequestPath());
 
         File[] dumpFiles = dumpRoot.listFiles();
-        assertEquals(1, dumpFiles.length);
+        assertEquals(1, Objects.requireNonNull(dumpFiles).length);
         File dumpFile = dumpFiles[0];
 
         assertTrue(dumpFile.exists());
@@ -735,17 +707,18 @@ public class HttpServerTest {
     /**
      * ダウンロードファイルがダンプされること。
      */
+    @SuppressWarnings({"DanglingJavadoc", "ResultOfMethodCallIgnored"})
     @Test
     public void testHttpMessageDumpFacilitiesForDownload() throws Exception {
         File dumpRoot = new File("tmp/http_dump/");
         dumpRoot.mkdirs();
-        for (File file : dumpRoot.listFiles()) {
+        for (File file : Objects.requireNonNull(dumpRoot.listFiles())) {
             file.delete();
         }
         
         File docRoot = new File("tmp/doc_root/");
         docRoot.mkdirs();
-        for (File file : docRoot.listFiles()) {
+        for (File file : Objects.requireNonNull(docRoot.listFiles())) {
             file.delete();
         }
         
@@ -754,20 +727,18 @@ public class HttpServerTest {
         .setHttpDumpEnabled(true)
         .setWarBasePath("file://tmp/doc_root/")
         .addHandler(new HttpAccessLogHandler())
-        .addHandler("/app/test.html", new HttpRequestHandler() {
-            public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                File file = Hereis.fileWithEncoding("./work/テスト一時ファイル.txt", "UTF-8");
-                /*
-                あいうえお
-                かきくけこさしすせそ
-                たちつてとなにぬねのはひふへほ
-                 */
-                boolean deleteOnCleanup = true;
-                StreamResponse response = new StreamResponse(file, deleteOnCleanup);
-                response.setContentType("text/plain; charset=UTF-8");
-                response.setContentDisposition(file.getName());
-                return response;
-            }
+        .addHandler("/app/test.html", (HttpRequestHandler) (req, ctx) -> {
+            File file = Hereis.fileWithEncoding("./work/テスト一時ファイル.txt", "UTF-8");
+            /*
+            あいうえお
+            かきくけこさしすせそ
+            たちつてとなにぬねのはひふへほ
+             */
+            boolean deleteOnCleanup = true;
+            StreamResponse response = new StreamResponse(file, deleteOnCleanup);
+            response.setContentType("text/plain; charset=UTF-8");
+            response.setContentDisposition(file.getName());
+            return response;
         })
         .startLocal();
         
@@ -794,7 +765,7 @@ public class HttpServerTest {
         assertEquals("/app/test.html", req.getRequestPath());
         
         File[] dumpFiles = dumpRoot.listFiles();
-        assertEquals(Arrays.asList(dumpFiles).toString(), 1, dumpFiles.length);
+        assertEquals(Arrays.asList(Objects.requireNonNull(dumpFiles)).toString(), 1, dumpFiles.length);
         File dumpFile = dumpFiles[0];
         
         assertTrue(dumpFile.exists());
@@ -822,6 +793,7 @@ public class HttpServerTest {
     /**
      * ダンプファイル作成失敗した場合に、エラーログからファイル名が特定できること。
      */
+    @SuppressWarnings("DanglingJavadoc")
     @Test
     public void testHttpMessageDumpFacilitiesError() throws Exception {
         // このテストはWindowsでしか動作しない。
@@ -830,9 +802,9 @@ public class HttpServerTest {
         boolean isWindows = System.getProperty("os.name").startsWith("Windows");
         assumeThat(isWindows, is(true));
 
-        LogVerifier.setExpectedLogMessages(new ArrayList<Map<String, String>>() {
+        LogVerifier.setExpectedLogMessages(new ArrayList<>() {
             {
-                add(new HashMap<String, String>() {
+                add(new HashMap<>() {
                     {
                         put("logLevel", "WARN");
                         put("message1", "an error occurred while the http dump was being written. make sure dump file path is valid (especially file name). path = [http_dump\\test\n1234.html]");
@@ -843,13 +815,9 @@ public class HttpServerTest {
         
         try {
             HttpServer server = new HttpServerJetty12()
-            .addHandler("/app/hasLink.do", new HttpRequestHandler() {
-                public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
-                    return new HttpResponse().setContentPath(
-                        "servlet://jsp/hasLink.jsp"
-                    );
-                }
-            })
+            .addHandler("/app/hasLink.do", (HttpRequestHandler) (req, ctx) -> new HttpResponse().setContentPath(
+                "servlet://jsp/hasLink.jsp"
+            ))
             .setWarBasePath("classpath://nablarch/fw/web/sample/")
             .setHttpDumpFilePath("http_dump/test\n1234.html")
             .startLocal();
@@ -916,7 +884,7 @@ public class HttpServerTest {
     /** 不正なWarベースパスが指定された場合、例外が発生すること。*/
     @Test
     public void testInvalidWarBasePath() {
-        List<ResourceLocator> paths = Arrays.asList(
+        List<ResourceLocator> paths = List.of(
                 ResourceLocator.valueOf("classpath://invalid/path/to/webApp/")
         );
 
