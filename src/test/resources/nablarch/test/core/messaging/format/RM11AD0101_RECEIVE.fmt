@@ -1,0 +1,8 @@
+file-type:        "Fixed"
+text-encoding:    "UTF-8"
+record-length:    140
+
+[data]
+1   failureCode X(20)     # 障害事由コード
+21  userInfoId  X(100)    # 問い合わせID
+121 ?filler     X(20)     # 空白領域

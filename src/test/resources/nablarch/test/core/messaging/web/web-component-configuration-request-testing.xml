@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration  ./component-configuration.xsd">
+
+	<import file="unit-test.xml"/>
+	
+    <!-- HTTPリクエスト単体テスト用の設定情報を読み込み -->
+    <import file="nablarch/test/core/messaging/web/httprequesttest/http-test-configuration.xml"/>
+  
+    <import file="nablarch/test/core/messaging/web/validation.xml"/>
+    <import file="nablarch/test/core/messaging/web/controller.xml"/>
+    <!--<import file="nablarch/test/core/messaging/web/interceptor.xml"/>-->
+    <import file="nablarch/test/core/messaging/web/file.xml" />
+
+    <import file="test-common.xml" />
+    
+      <config-file file="nablarch/test/core/messaging/web/messageSender.config" />
+
+	  <!-- リクエスト単体テスト用Mockのメッセージングプロバイダ -->
+	  <component name="messagingProvider"
+	             class="nablarch.test.core.messaging.RequestTestingMessagingProvider" />
+	  
+    <component name="initializer" class="nablarch.core.repository.initialization.BasicApplicationInitializer">
+        <property name="initializeList">
+            <list>
+                <!--
+                  初期化が必要なコンポーネント。
+                -->
+                <component-ref name="formDefinitionCache"/>
+                <component-ref name="validationManager"/>
+                <!--<component-ref name="japaneseCharacterChecker"/>-->
+            </list>
+        </property>
+    </component>
+    
+      <!-- HTTP通信用クライアント -->
+  <component name="defaultMessageSenderClient" class="nablarch.test.core.messaging.RequestTestingMessagingClient">
+    <property name="charset" value="UTF-8"/>
+  </component>
+
+  <!--&lt;!&ndash; データを一律HOGEに置き換えるテスト用コンバータ &ndash;&gt;-->
+  <!--<component name="TestDataConverter_Hoge" -->
+             <!--class="nablarch.test.core.messaging.RequestTestingMessagingClientTest$HogeDataConvertor"/>-->
+    
+</component-configuration>

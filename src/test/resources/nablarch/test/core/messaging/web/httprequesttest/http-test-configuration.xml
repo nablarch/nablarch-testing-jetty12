@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+HTTPリクエスト単体テストを実施するための環境設定
+-->
+<component-configuration
+    xmlns="http://tis.co.jp/nablarch/component-configuration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ../component-configuration.xsd">
+
+  <config-file file="nablarch/test/core/messaging/web/httprequesttest/http-test.config" />
+
+  <component name="httpTestConfiguration" class="nablarch.test.core.http.HttpTestConfiguration">
+
+    <property name="webBaseDir" value="${webBaseDir}" />
+
+    <!-- セッションに格納する情報 -->
+    <property name="sessionInfo">
+      <map>
+        <entry key="commonHeaderLoginUserName" value="リクエスト単体テストユーザ" />
+        <entry key="commonHeaderLoginDate" value="20100914" />
+      </map>
+    </property>
+
+    <!-- Htmlチェックツールを実行するか否かの設定 -->
+    <property name="checkHtml" value="false" />
+
+    <!-- Htmlチェックツールの設定ファイルパス -->
+    <property name="htmlCheckerConfig"
+              value="src/test/resources/html-check-config.csv" />
+
+    <!-- ダンプディレクトリへコピーされるHTMLリソースの拡張子。 -->
+    <property name="htmlResourcesExtensionList">
+      <list>
+        <value>css</value>
+        <value>jpg</value>
+        <value>js</value>
+      </list>
+    </property>
+
+    <!-- ダンプディレクトリへコピーされるHTMLリソースのルートディレクトリ。 -->
+    <property name="htmlResourcesRoot" value="../htmlResources" />
+    <property name="backup" value="false" />
+    <property name="htmlResourcesCharset" value="UTF-8" />
+
+    <!-- ダンプHTMLへの可変項目の出力可否 -->
+    <property name="dumpVariableItem" value="false" />
+
+  </component>
+
+</component-configuration>

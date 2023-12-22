@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ./component-configuration.xsd">
+  <!-- フレームワークコンポーネント設定ファイル -->
+  <import file="framework.xml"/>
+  <!-- テスト用に設定値を上書きするコンポーネント設定ファイル -->
+  <import file="override.xml"/>
+  <!-- テスト用コンバータ設定ファイル -->
+  <import file="convertorSetting.xml"/>
+
+  <!-- テスト用設定値 -->
+  <config-file file="unit-test.config"/>
+
+  <!-- TestDataParser -->
+  <component name="testDataParser" class="nablarch.test.core.reader.BasicTestDataParser">
+    <property name="testDataReader">
+      <component name="xlsReaderForPoi" class="nablarch.test.core.reader.PoiXlsReader"/>
+    </property>
+    <property name="dbInfo" ref="dbInfo"/>
+    <property name="interpreters" ref="interpreters"/>
+    <property name="defaultValues">
+      <component name="basicDefaultValues" class="nablarch.test.core.db.BasicDefaultValues"/>
+    </property>
+  </component>
+
+  <!-- テストデータ記法の解釈を行うクラス群 -->
+  <list name="interpreters">
+    <!-- null変換 -->
+    <component class="nablarch.test.core.util.interpreter.NullInterpreter"/>
+    <!-- 引用符を外す -->
+    <component
+            class="nablarch.test.core.util.interpreter.QuotationTrimmer"/>
+    <!-- システム時刻記法 -->
+    <component
+            class="nablarch.test.core.util.interpreter.DateTimeInterpreter">
+      <property name="systemTimeProvider" ref="systemTimeProvider"/>
+    </component>
+    <!-- 改行コードを変換する -->
+    <component class="nablarch.test.core.util.interpreter.LineSeparatorInterpreter"/>
+    <!-- 文字列増幅 -->
+    <component
+            class="nablarch.test.core.util.interpreter.CompositeInterpreter">
+      <property name="interpreters">
+        <list>
+          <component
+                  class="nablarch.test.core.util.interpreter.BasicJapaneseCharacterInterpreter"/>
+        </list>
+      </property>
+    </component>
+  </list>
+
+  <!-- マスタデータ復旧クラス -->
+  <component name="masterDataRestorer" class="nablarch.test.core.db.MasterDataRestorer">
+    <!-- バックアップスキーマ -->
+    <property name="backupSchema" value="ssd_master"/>
+    <!-- 監視対象テーブル一覧 -->
+    <property name="tablesTobeWatched">
+      <list>
+        <value>hoge_table</value>
+        <value>granpa</value>
+        <value>father</value>
+        <value>son</value>
+        <value>daughter</value>
+        <value>family</value>
+      </list>
+    </property>
+  </component>
+
+  <!-- テストイベントリスナー一覧 -->
+  <list name="testEventListeners">
+    <component class="nablarch.test.RepositoryInitializer"/>
+    <component-ref name="masterDataRestorer"/>
+  </list>
+
+  <!-- エンティティテスト設定 -->
+  <component name="entityTestConfiguration" class="nablarch.test.core.entity.EntityTestConfiguration">
+    <property name="maxMessageId" value="MSG00011"/>
+    <property name="maxAndMinMessageId" value="MSG00011"/>
+    <property name="fixLengthMessageId" value="MSG00023"/>
+    <property name="underLimitMessageId" value="MSG00011"/>
+    <property name="emptyInputMessageId" value="MSG00010"/>
+    <property name="characterGenerator">
+      <component name="characterGenerator"
+                 class="nablarch.test.core.util.generator.BasicJapaneseCharacterGenerator"/>
+    </property>
+  </component>
+
+  <!-- デフォルトディレクティブ（共通） -->
+  <map name="defaultDirectives">
+    <entry key="text-encoding" value="Windows-31J"/>
+  </map>
+
+  <!-- デフォルトディレクティブ（固定長） -->
+  <map name="fixedLengthDirectives">
+    <entry key="record-separator" value="NONE"/>
+  </map>
+
+  <!-- デフォルトディレクティブ（可変長） -->
+  <map name="variableLengthDirectives">
+    <entry key="quoting-delimiter" value="&quot;"/>
+    <entry key="record-separator" value="CRLF"/>
+  </map>
+
+  <component name="filePathSetting"
+             class="nablarch.core.util.FilePathSetting" autowireType="None">
+    <property name="basePathSettings">
+      <map>
+        <entry key="move" value="file:tmp"/>
+      </map>
+    </property>
+    <property name="fileExtensions">
+      <map>
+        <entry key="sendSyncTestData" value="xls"/>
+      </map>
+    </property>
+  </component>
+
+  <component name="httpServerFactory" class="nablarch.fw.web.httpserver.HttpServerFactoryJetty12"/>
+
+</component-configuration>
