@@ -1,4 +1,4 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jsch/core" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <html>
   <head>
     <title>Greeting Service</title>
