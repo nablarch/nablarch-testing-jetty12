@@ -74,12 +74,6 @@
     <dependency>
       <groupId>com.nablarch.framework</groupId>
       <artifactId>nablarch-testing</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.eclipse.jdt.core.compiler</groupId>
-          <artifactId>ecj</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
