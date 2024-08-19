@@ -22,7 +22,6 @@
   </parent>
   
   <properties>
-    <ecj.version>3.5.1</ecj.version>
     <jetty.version>12.0.3</jetty.version>
   </properties>
 
