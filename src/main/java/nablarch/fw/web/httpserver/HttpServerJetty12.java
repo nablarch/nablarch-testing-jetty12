@@ -21,12 +21,14 @@ import org.apache.tomcat.util.scan.StandardJarScanner;
 import org.eclipse.jetty.ee10.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.ee10.webapp.JspConfiguration;
 import org.eclipse.jetty.ee10.webapp.WebAppConfiguration;
+import org.eclipse.jetty.ee10.servlet.SessionHandler;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.ee10.servlet.SessionHandler;
-import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.ee10.webapp.Configuration;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
@@ -70,7 +72,15 @@ public class HttpServerJetty12 extends HttpServer {
      */
     public HttpServerJetty12 start() {
         jetty = new Server(getPort());
-        Connector conn = new ServerConnector(jetty);
+
+        // 12.0.5 でembedded modeだけrelativeRedirectAllowed のデフォルト値が変更されている。
+        // 以前の挙動を前提にテストコードを実装していると失敗してしまうため、設定を戻す。
+        // https://github.com/jetty/jetty.project/issues/11947
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setRelativeRedirectAllowed(false);
+        HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
+
+        Connector conn = new ServerConnector(jetty, httpConnectionFactory);
         initialize(conn);
         try {
             jetty.start();
@@ -89,7 +99,15 @@ public class HttpServerJetty12 extends HttpServer {
      */
     public HttpServerJetty12 startLocal() {
         jetty = new Server();
-        localConnector = new LocalConnector(jetty);
+
+        // 12.0.5 でembedded modeだけrelativeRedirectAllowed のデフォルト値が変更されている。
+        // 以前の挙動を前提にテストコードを実装していると失敗してしまうため、設定を戻す。
+        // https://github.com/jetty/jetty.project/issues/11947
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setRelativeRedirectAllowed(false);
+        HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
+
+        localConnector = new LocalConnector(jetty, httpConnectionFactory);
         initialize(localConnector);
         try {
             jetty.start();

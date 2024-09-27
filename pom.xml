@@ -6,7 +6,7 @@
 
   <groupId>com.nablarch.framework</groupId>
   <artifactId>nablarch-testing-jetty12</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 
   <scm>
     <connection>scm:git:git://github.com/nablarch/${project.artifactId}.git</connection>
@@ -17,13 +17,12 @@
   <parent>
     <groupId>com.nablarch</groupId>
     <artifactId>nablarch-parent</artifactId>
-    <version>6</version>
+    <version>6u2</version>
     <relativePath/>
   </parent>
   
   <properties>
-    <ecj.version>3.5.1</ecj.version>
-    <jetty.version>12.0.3</jetty.version>
+    <jetty.version>12.0.12</jetty.version>
   </properties>
 
   <dependencyManagement>
@@ -74,12 +73,6 @@
     <dependency>
       <groupId>com.nablarch.framework</groupId>
       <artifactId>nablarch-testing</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.eclipse.jdt.core.compiler</groupId>
-          <artifactId>ecj</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -115,7 +108,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.5</version>
+      <version>1.5.6</version>
       <scope>test</scope>
     </dependency>
 
